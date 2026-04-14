@@ -12,6 +12,17 @@ A full-stack Python Flask application that discovers small but active YouTube cr
 - **Lead Management**: Approve, reject, and export leads to CSV
 - **Modern Dashboard**: Clean Vercel-inspired UI with filters and pagination
 
+## Screenshots
+
+![Dashboard Overview](screenshots/dashboard.png)
+*Main dashboard showing lead statistics and channel listings*
+
+![Lead Table](screenshots/leads.png)
+*Lead table with activity scores, contact info, and action buttons*
+
+![Search Modal](screenshots/search.png)
+*Search interface for discovering new YouTube channels*
+
 ## Tech Stack
 
 - **Backend**: Flask, Flask-SQLAlchemy, Flask-CORS
