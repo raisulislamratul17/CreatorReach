@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreatorReach</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">CreatorReach</h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="openSearchModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Search Channels
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl p-6 border border-gray-200">
+                <p class="text-sm font-medium text-gray-500">Total Leads</p>
+                <p class="text-2xl font-bold text-gray-900" id="stat-total">-</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 border border-gray-200">
+                <p class="text-sm font-medium text-gray-500">Pending</p>
+                <p class="text-2xl font-bold text-amber-600" id="stat-pending">-</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 border border-gray-200">
+                <p class="text-sm font-medium text-gray-500">Approved</p>
+                <p class="text-2xl font-bold text-green-600" id="stat-approved">-</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 border border-gray-200">
+                <p class="text-sm font-medium text-gray-500">Rejected</p>
+                <p class="text-2xl font-bold text-red-600" id="stat-rejected">-</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <!-- Filters -->
+        <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+            <div class="flex flex-wrap items-end gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min Subscribers</label>
+                    <input type="number" id="filter-min-subs" placeholder="0" class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Max Subscribers</label>
+                    <input type="number" id="filter-max-subs" placeholder="50000" class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Niche</label>
+                    <select id="filter-niche" class="w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">All Niches</option>
+                        <option value="Gaming">Gaming</option>
+                        <option value="Education">Education</option>
+                        <option value="Vlog">Vlog</option>
+                        <option value="Tech">Tech</option>
+                        <option value="Fitness">Fitness</option>
+                        <option value="Food">Food</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Fashion">Fashion</option>
+                        <option value="Beauty">Beauty</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Music">Music</option>
+                        <option value="Finance">Finance</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select id="filter-status" class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min Activity Score</label>
+                    <input type="number" id="filter-activity" placeholder="0" min="0" max="100" class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="applyFilters()" class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        Apply Filters
+                    </button>
+                    <button onclick="clearFilters()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">Leads</h2>
+            <button onclick="exportCSV()" class="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Export CSV
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="hidden">
+            <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
+                <div class="loader mx-auto mb-4"></div>
+                <p class="text-gray-500">Loading leads...</p>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden">
+            <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-1">No leads found</h3>
+                <p class="text-gray-500 mb-4">Search for channels to start building your lead list.</p>
+                <button onclick="openSearchModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    Search Channels
+                </button>
+            </div>
+        </div>
+
+        <!-- Leads Table -->
+        <div id="leads-container" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Channel</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Subscribers</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Niche</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Activity Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leads-table-body" class="divide-y divide-gray-200">
+                        <!-- Leads will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <p class="text-sm text-gray-500">
+                    Showing <span id="pagination-start">0</span> to <span id="pagination-end">0</span> of <span id="pagination-total">0</span> leads
+                </p>
+                <div class="flex gap-2">
+                    <button id="prev-page" onclick="changePage(-1)" disabled class="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+                        Previous
+                    </button>
+                    <button id="next-page" onclick="changePage(1)" disabled class="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Search YouTube Channels</h3>
+                <button onclick="closeSearchModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Search Keyword</label>
+                    <input type="text" id="search-keyword" placeholder="e.g., gaming, study vlog, tech reviews" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Max Results</label>
+                    <select id="search-max-results" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="20">20</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div id="search-error" class="hidden text-red-600 text-sm"></div>
+                <div id="search-loading" class="hidden">
+                    <div class="flex items-center justify-center py-4">
+                        <div class="loader mr-3"></div>
+                        <span class="text-gray-500">Searching for channels...</span>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeSearchModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-medium transition-colors">
+                        Cancel
+                    </button>
+                    <button onclick="performSearch()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg font-medium transition-colors">
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lead Detail Modal -->
+    <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div id="detail-content">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentFilters = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadLeads();
+        });
+
+        // Load Stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                document.getElementById('stat-total').textContent = data.total_leads;
+                document.getElementById('stat-pending').textContent = data.pending_leads;
+                document.getElementById('stat-approved').textContent = data.approved_leads;
+                document.getElementById('stat-rejected').textContent = data.rejected_leads;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load Leads
+        async function loadLeads() {
+            const loadingState = document.getElementById('loading-state');
+            const emptyState = document.getElementById('empty-state');
+            const leadsContainer = document.getElementById('leads-container');
+            
+            loadingState.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            leadsContainer.classList.add('hidden');
+
+            try {
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    per_page: 20,
+                    ...currentFilters
+                });
+
+                const response = await fetch(`/api/leads?${params}`);
+                const data = await response.json();
+
+                loadingState.classList.add('hidden');
+
+                if (data.leads.length === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    leadsContainer.classList.remove('hidden');
+                    renderLeads(data.leads);
+                    updatePagination(data);
+                }
+            } catch (error) {
+                loadingState.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                console.error('Error loading leads:', error);
+            }
+        }
+
+        // Render Leads
+        function renderLeads(leads) {
+            const tbody = document.getElementById('leads-table-body');
+            tbody.innerHTML = leads.map(lead => `
+                <tr class="hover:bg-gray-50 transition-colors fade-in">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                <span class="text-lg font-medium text-gray-600">${lead.channel_name.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${lead.channel_name}</div>
+                                <a href="${lead.channel_url}" target="_blank" class="text-xs text-primary-600 hover:text-primary-700">View Channel</a>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">${formatNumber(lead.subscriber_count)}</div>
+                        <div class="text-xs text-gray-500">${lead.total_videos} videos</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            ${lead.niche || 'Unknown'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="flex-1 h-2 bg-gray-200 rounded-full mr-2">
+                                <div class="h-2 bg-primary-600 rounded-full" style="width: ${lead.activity_score || 0}%"></div>
+                            </div>
+                            <span class="text-sm text-gray-600">${lead.activity_score ? Math.round(lead.activity_score) : '-'}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">${lead.email || '-'}</div>
+                        <div class="flex gap-2 mt-1">
+                            ${lead.instagram ? `<a href="${lead.instagram}" target="_blank" class="text-gray-400 hover:text-pink-600"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>` : ''}
+                            ${lead.twitter ? `<a href="${lead.twitter}" target="_blank" class="text-gray-400 hover:text-blue-400"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>` : ''}
+                            ${lead.website ? `<a href="${lead.website}" target="_blank" class="text-gray-400 hover:text-gray-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg></a>` : ''}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(lead.status)}">
+                            ${lead.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right text-sm font-medium">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="viewLeadDetail(${lead.id})" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                            <button onclick="approveLead(${lead.id})" class="text-green-400 hover:text-green-600 ${lead.status === 'approved' ? 'opacity-50 cursor-not-allowed' : ''}" ${lead.status === 'approved' ? 'disabled' : ''}>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </button>
+                            <button onclick="rejectLead(${lead.id})" class="text-red-400 hover:text-red-600 ${lead.status === 'rejected' ? 'opacity-50 cursor-not-allowed' : ''}" ${lead.status === 'rejected' ? 'disabled' : ''}>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Get Status CSS Class
+        function getStatusClass(status) {
+            switch (status) {
+                case 'approved': return 'bg-green-100 text-green-800';
+                case 'rejected': return 'bg-red-100 text-red-800';
+                default: return 'bg-amber-100 text-amber-800';
+            }
+        }
+
+        // Update Pagination
+        function updatePagination(data) {
+            totalPages = data.pages;
+            const start = (data.current_page - 1) * data.per_page + 1;
+            const end = Math.min(start + data.leads.length - 1, data.total);
+            
+            document.getElementById('pagination-start').textContent = start;
+            document.getElementById('pagination-end').textContent = end;
+            document.getElementById('pagination-total').textContent = data.total;
+            
+            document.getElementById('prev-page').disabled = data.current_page === 1;
+            document.getElementById('next-page').disabled = data.current_page >= data.pages;
+        }
+
+        // Change Page
+        function changePage(delta) {
+            currentPage += delta;
+            loadLeads();
+        }
+
+        // Apply Filters
+        function applyFilters() {
+            currentFilters = {};
+            
+            const minSubs = document.getElementById('filter-min-subs').value;
+            const maxSubs = document.getElementById('filter-max-subs').value;
+            const niche = document.getElementById('filter-niche').value;
+            const status = document.getElementById('filter-status').value;
+            const activity = document.getElementById('filter-activity').value;
+            
+            if (minSubs) currentFilters.min_subscribers = minSubs;
+            if (maxSubs) currentFilters.max_subscribers = maxSubs;
+            if (niche) currentFilters.niche = niche;
+            if (status) currentFilters.status = status;
+            if (activity) currentFilters.min_activity_score = activity;
+            
+            currentPage = 1;
+            loadLeads();
+        }
+
+        // Clear Filters
+        function clearFilters() {
+            document.getElementById('filter-min-subs').value = '';
+            document.getElementById('filter-max-subs').value = '';
+            document.getElementById('filter-niche').value = '';
+            document.getElementById('filter-status').value = '';
+            document.getElementById('filter-activity').value = '';
+            
+            currentFilters = {};
+            currentPage = 1;
+            loadLeads();
+        }
+
+        // Search Modal
+        function openSearchModal() {
+            document.getElementById('search-modal').classList.remove('hidden');
+            document.getElementById('search-keyword').focus();
+        }
+
+        function closeSearchModal() {
+            document.getElementById('search-modal').classList.add('hidden');
+            document.getElementById('search-error').classList.add('hidden');
+            document.getElementById('search-loading').classList.add('hidden');
+        }
+
+        // Perform Search
+        async function performSearch() {
+            const keyword = document.getElementById('search-keyword').value.trim();
+            const maxResults = document.getElementById('search-max-results').value;
+            const errorDiv = document.getElementById('search-error');
+            const loadingDiv = document.getElementById('search-loading');
+
+            if (!keyword) {
+                errorDiv.textContent = 'Please enter a search keyword';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            errorDiv.classList.add('hidden');
+            loadingDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ keyword, max_results: parseInt(maxResults) })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeSearchModal();
+                    loadStats();
+                    loadLeads();
+                } else {
+                    errorDiv.textContent = data.error || 'Search failed';
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.classList.remove('hidden');
+            } finally {
+                loadingDiv.classList.add('hidden');
+            }
+        }
+
+        // Approve Lead
+        async function approveLead(id) {
+            try {
+                const response = await fetch(`/api/leads/${id}/approve`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadStats();
+                    loadLeads();
+                }
+            } catch (error) {
+                console.error('Error approving lead:', error);
+            }
+        }
+
+        // Reject Lead
+        async function rejectLead(id) {
+            try {
+                const response = await fetch(`/api/leads/${id}/reject`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadStats();
+                    loadLeads();
+                }
+            } catch (error) {
+                console.error('Error rejecting lead:', error);
+            }
+        }
+
+        // View Lead Detail
+        async function viewLeadDetail(id) {
+            try {
+                const response = await fetch(`/api/leads/${id}`);
+                const lead = await response.json();
+
+                const modal = document.getElementById('detail-modal');
+                const content = document.getElementById('detail-content');
+
+                content.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex items-center">
+                                <div class="h-16 w-16 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <span class="text-2xl font-medium text-gray-600">${lead.channel_name.charAt(0).toUpperCase()}</span>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-xl font-bold text-gray-900">${lead.channel_name}</h3>
+                                    <a href="${lead.channel_url}" target="_blank" class="text-primary-600 hover:text-primary-700">View on YouTube</a>
+                                </div>
+                            </div>
+                            <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-500">Subscribers</p>
+                                <p class="text-lg font-semibold text-gray-900">${formatNumber(lead.subscriber_count)}</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-500">Total Videos</p>
+                                <p class="text-lg font-semibold text-gray-900">${lead.total_videos}</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-500">Niche</p>
+                                <p class="text-lg font-semibold text-gray-900">${lead.niche || 'Unknown'}</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-500">Activity Score</p>
+                                <p class="text-lg font-semibold text-gray-900">${lead.activity_score ? Math.round(lead.activity_score) : '-'}/100</p>
+                            </div>
+                        </div>
+
+                        ${lead.summary ? `
+                        <div class="mb-6">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-2">Summary</h4>
+                            <p class="text-sm text-gray-600">${lead.summary}</p>
+                        </div>
+                        ` : ''}
+
+                        <div class="mb-6">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-2">Contact Information</h4>
+                            <div class="space-y-2 text-sm">
+                                ${lead.email ? `<p><span class="text-gray-500">Email:</span> <a href="mailto:${lead.email}" class="text-primary-600">${lead.email}</a></p>` : ''}
+                                ${lead.instagram ? `<p><span class="text-gray-500">Instagram:</span> <a href="${lead.instagram}" target="_blank" class="text-primary-600">${lead.instagram}</a></p>` : ''}
+                                ${lead.twitter ? `<p><span class="text-gray-500">Twitter:</span> <a href="${lead.twitter}" target="_blank" class="text-primary-600">${lead.twitter}</a></p>` : ''}
+                                ${lead.linkedin ? `<p><span class="text-gray-500">LinkedIn:</span> <a href="${lead.linkedin}" target="_blank" class="text-primary-600">${lead.linkedin}</a></p>` : ''}
+                                ${lead.website ? `<p><span class="text-gray-500">Website:</span> <a href="${lead.website}" target="_blank" class="text-primary-600">${lead.website}</a></p>` : ''}
+                                ${!lead.email && !lead.instagram && !lead.twitter && !lead.linkedin && !lead.website ? '<p class="text-gray-400">No contact information found</p>' : ''}
+                            </div>
+                        </div>
+
+                        ${lead.tags && lead.tags.length > 0 ? `
+                        <div class="mb-6">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-2">Tags</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${lead.tags.map(tag => `<span class="px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <div class="flex gap-3 pt-4 border-t border-gray-200">
+                            <button onclick="approveLead(${lead.id}); closeDetailModal();" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium transition-colors">
+                                Approve
+                            </button>
+                            <button onclick="rejectLead(${lead.id}); closeDetailModal();" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition-colors">
+                                Reject
+                            </button>
+                            <button onclick="closeDetailModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-medium transition-colors">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                modal.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading lead detail:', error);
+            }
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        // Export CSV
+        function exportCSV() {
+            const params = new URLSearchParams(currentFilters);
+            window.open(`/api/leads/export?${params}`, '_blank');
+        }
+
+        // Format Number
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        // Close modals on outside click
+        window.onclick = function(event) {
+            const searchModal = document.getElementById('search-modal');
+            const detailModal = document.getElementById('detail-modal');
+            if (event.target === searchModal) {
+                closeSearchModal();
+            }
+            if (event.target === detailModal) {
+                closeDetailModal();
+            }
+        }
+    </script>
+</body>
+</html>
